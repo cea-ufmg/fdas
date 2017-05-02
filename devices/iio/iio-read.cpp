@@ -15,8 +15,8 @@ int main (int argc, char *argv[]) {
       ("device,d", po::value<string>(), "iio device to read from");
   
   po::options_description desc("Read from iio device.");
-  desc.add(GeneralOptions());//.add(DataSinkOptions()).add(iio_options_desc);
-
+  desc.add(GeneralOptions()).add(DataSinkOptions()).add(iio_options_desc);
+  
   po::variables_map vm;
   
   return 0;
