@@ -2,7 +2,9 @@
  * FDAS device module for reading iio devices.
  */
 
-#include <common/common.hpp>
+#include <iio.h>
+
+#include "common/common.hpp"
 
 namespace po = boost::program_options;
 

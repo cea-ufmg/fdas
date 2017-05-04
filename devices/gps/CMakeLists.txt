@@ -1,4 +1,4 @@
 add_executable(gps-read gps-read.cpp $<TARGET_OBJECTS:common>)
-target_link_libraries(gps-read boost_program_options boost_log)
+target_link_libraries(gps-read ${Boost_LIBRARIES})
 
 install(TARGETS gps-read DESTINATION bin)
