@@ -5,8 +5,7 @@ if(libiio_INCLUDE_DIR AND libiio_LIBRARY)
   include_directories("${libiio_INCLUDE_DIR}")
 
   add_executable(iio-read iio-read.cpp $<TARGET_OBJECTS:common>)
-  target_link_libraries(iio-read ${Boost_LIBRARIES} ${libiio_LIBRARY})
-
+  target_link_libraries(iio-read pthread ${Boost_LIBRARIES} ${libiio_LIBRARY})
+  
   install(TARGETS iio-read DESTINATION bin)
 endif(libiio_INCLUDE_DIR AND libiio_LIBRARY)
-
