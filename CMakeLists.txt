@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.0.2)
 project (fdas)
 
+add_definitions(-DBOOST_LOG_DYN_LINK=1)
+set(Boost_USE_MULTITHREADED OFF)
 find_package(Boost REQUIRED COMPONENTS program_options log)
 
 if(CMAKE_COMPILER_IS_GNUCC)

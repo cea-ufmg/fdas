@@ -94,10 +94,12 @@ po::options_description DataSinkOptions() {
 
 DataSinkPtrList BuildDataSinks(const po::variables_map &vm) {
   DataSinkPtrList ret;
-
+  
   // Build text file data sinks
-  for (const auto& name: vm["log-data-text-file"].as<vector<string>>()) {
-    ret.push_back(DataSinkPtr(new TextFileDataSink(name)));
+  if (vm.count("log-data-text-file")) {
+    for (const auto& name: vm["log-data-text-file"].as<vector<string>>()) {
+      ret.push_back(DataSinkPtr(new TextFileDataSink(name)));
+    }
   }
   
   return ret;
