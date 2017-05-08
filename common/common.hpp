@@ -8,6 +8,9 @@
 
 #include <cstdint>
 #include <fstream>
+#include <list>
+#include <memory>
+
 #include <boost/program_options.hpp>
 
 
@@ -73,14 +76,21 @@ class TextFileDataSink : public DataSink {
   virtual void Take(Datum<double> datum);
   virtual void Take(Datum<float> datum);  
   
-  TextFileDataSink(const char *filename) : ostream(filename) {}  
+  explicit TextFileDataSink(const char *filename) : ostream(filename) {}
+  explicit TextFileDataSink(const std::string &filename) : ostream(filename) {}
 };
+
+typedef std::shared_ptr<DataSink> DataSinkPtr;
+typedef std::list<DataSinkPtr> DataSinkPtrList;
 
 //** General program options like help and logging. */
 boost::program_options::options_description GeneralOptions();
 
 //** Data sinking program options. */
 boost::program_options::options_description DataSinkOptions();
+
+//** Create the list of data sinks specified in program options. */
+DataSinkPtrList BuildDataSinks(const boost::program_options::variables_map &vm);
 
 }// namespace fdas
 

@@ -7,8 +7,11 @@
 #include <vector>
 
 namespace po = boost::program_options;
-using std::vector;
+using std::list;
+using std::shared_ptr;
 using std::string;
+using std::vector;
+
 
 namespace fdas {
 
@@ -72,6 +75,14 @@ void TextFileDataSink::Take(Datum<float> datum) {
   this->ostream << datum.timestamp << std::endl;
 }
 
+po::options_description GeneralOptions() {
+  po::options_description desc("General program options, help and logging");
+  desc.add_options()
+      ("help,h", "Print help and argument usage");
+  
+  return desc;
+}
+
 po::options_description DataSinkOptions() {
   po::options_description desc("Common FDAS data sinking options");
   desc.add_options()
@@ -81,12 +92,15 @@ po::options_description DataSinkOptions() {
   return desc;
 }
 
-po::options_description GeneralOptions() {
-  po::options_description desc("General program options, help and logging");
-  desc.add_options()
-      ("help,h", "Print help and argument usage");
+DataSinkPtrList BuildDataSinks(const po::variables_map &vm) {
+  DataSinkPtrList ret;
+
+  // Build text file data sinks
+  for (const auto& name: vm["log-data-text-file"].as<vector<string>>()) {
+    ret.push_back(DataSinkPtr(new TextFileDataSink(name)));
+  }
   
-  return desc;
+  return ret;
 }
 
 }

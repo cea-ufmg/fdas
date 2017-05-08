@@ -9,4 +9,3 @@ if(libiio_INCLUDE_DIR AND libiio_LIBRARY)
 
   install(TARGETS iio-read DESTINATION bin)
 endif(libiio_INCLUDE_DIR AND libiio_LIBRARY)
-
