@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <vector>
 
 #include <boost/log/trivial.hpp>
 #include <iio.h>
@@ -16,10 +17,23 @@ using std::cerr;
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 
-void ReadBuffer(struct iio_device *dev) {
+void ReadBuffer(struct iio_device *dev, const DataSinkPtrList &data_sinks,
+                size_t buffer_size) {
+  vector<struct iio_channel*> channels;
+  for (int i = 0; i < iio_device_get_channels_count(dev); ++i) {
+    struct iio_channel *channel = iio_device_get_channel(dev, i);
+    if (iio_channel_is_scan_element(channel)) {
+      iio_channel_enable(channel);
+      channels.insert(channel);
+    }
+  }
+
+  struct iio_buffer *buffer = iio_device_create_buffer(dev, buffer_size, false);
   
+  iio_buffer_destroy(buffer);
 }
 
 int main (int argc, char *argv[]) {
@@ -73,7 +87,7 @@ int main (int argc, char *argv[]) {
   }
 
   // Read from the device
-  ReadBuffer(dev);
+  ReadBuffer(dev, data_sinks);
 
   // Cleanup and exit
   iio_context_destroy(ctx);
