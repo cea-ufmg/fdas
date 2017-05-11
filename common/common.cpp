@@ -16,61 +16,61 @@ using std::vector;
 namespace fdas {
 
 void TextFileDataSink::Take(Datum<int8_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<int16_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<int32_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<int64_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<uint8_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<uint16_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<uint32_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<uint64_t> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<double> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }
 
 void TextFileDataSink::Take(Datum<float> datum) {
-  this->ostream << datum.id->NumId() << '\t';
+  this->ostream << '"' << datum.id->StrId() << '"' << '\t';
   this->ostream << datum.data << '\t';
   this->ostream << datum.timestamp << std::endl;
 }

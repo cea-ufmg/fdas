@@ -3,12 +3,14 @@
  */
 
 #include <iostream>
+#include <cstring>
 #include <vector>
 
 #include <boost/log/trivial.hpp>
 #include <iio.h>
 
 #include "common/common.hpp"
+
 
 namespace po = boost::program_options;
 
@@ -22,29 +24,65 @@ using std::vector;
 
 void ReadBuffer(struct iio_device *dev, const DataSinkPtrList &data_sinks,
                 size_t buffer_size) {
+  struct iio_channel *timestamp_channel = 0;
   vector<struct iio_channel*> channels;
-  for (int i = 0; i < iio_device_get_channels_count(dev); ++i) {
+  vector<DataId> data_ids;
+  
+  for (int i=0; i<iio_device_get_channels_count(dev); i++) {
     struct iio_channel *channel = iio_device_get_channel(dev, i);
-    if (iio_channel_is_scan_element(channel)) {
-      iio_channel_enable(channel);
-      channels.insert(channel);
+    const char* channel_name = iio_channel_get_name(channel);
+
+    // Proceed to next channel if the current cannot be read in the buffer
+    if (!iio_channel_is_scan_element(channel))
+      continue;
+    
+    iio_channel_enable(channel);
+    if (!std::strcmp(channel_name, "timestamp")) {
+      timestamp_channel = channel;
+    } else {
+      channels.push_back(channel);
+      data_ids.push_back(DataId(channel_name));
     }
   }
-
-  struct iio_buffer *buffer = iio_device_create_buffer(dev, buffer_size, false);
   
+  struct iio_buffer *buffer = iio_device_create_buffer(dev, buffer_size, false);
+  if (!buffer) {
+    BOOST_LOG_TRIVIAL(error) << "Could create iio buffer.";
+    return;
+  }
+
+  for (;;) {
+    // Get data from the buffer
+    ssize_t nread = iio_buffer_refill(buffer);
+    if (nread < 0) {
+      BOOST_LOG_TRIVIAL(error) << "Error refilling iio buffer: "
+                               << std::strerror(errno);
+      goto cleanup_and_exit;
+    }
+
+    
+    if (timestamp_channel) {
+      // todo
+    }
+      
+  }
+  
+cleanup_and_exit:  
   iio_buffer_destroy(buffer);
 }
 
 int main (int argc, char *argv[]) {
   // Command line arguments
   string device_name;
+  unsigned buffer_size;
   
   // Define accepted command line arguments
   po::options_description desc("Read from iio device");
   desc.add_options()
       ("device,d", po::value<string>(&device_name)->required(),
-       "iio device to read from");
+       "iio device to read from")
+      ("buffer-size", po::value<unsigned>(&buffer_size)->default_value(512),
+       "iio buffer size (default 512)");
   desc.add(GeneralOptions()).add(DataSinkOptions());
   
   // Parse command line arguments
@@ -87,7 +125,7 @@ int main (int argc, char *argv[]) {
   }
 
   // Read from the device
-  ReadBuffer(dev, data_sinks);
+  ReadBuffer(dev, data_sinks, buffer_size);
 
   // Cleanup and exit
   iio_context_destroy(ctx);

@@ -19,20 +19,19 @@ namespace fdas {
 /** Data identifier. */
 class DataId {
  protected:
-  const char *description;
-  const char *units;
   const char *strid; /**< Unique data identifier string. */
-  uint16_t numid; /**< Unique data identifier number. */
+  const char *description = "";
+  const char *units = "";
   
  public:
   const char* Description() const {return description;}
   const char* Units() const {return units;}
   const char* StrId() const {return strid;}
-  uint16_t NumId() const {return numid;}
   
-  DataId(const char *description, const char *units,
-         const char *strid, uint16_t numid)
-      : description(description), units(units), strid(strid), numid(numid) {}
+  DataId(const char *strid, const char *description, const char *units)
+      : strid(strid), description(description), units(units) {}
+  DataId(const char *strid)
+      : strid(strid) {}
 };
 
 /** Data point. */
