@@ -60,11 +60,15 @@ void ReadBuffer(struct iio_device *dev, const DataSinkPtrList &data_sinks,
       goto cleanup_and_exit;
     }
 
+    ptrdiff_t buffer_step = iio_buffer_step(buffer);
+    void *buffer_end = iio_buffer_end(buffer);
     
+    vector<uint64_t> timestamps(buffer_size);
     if (timestamp_channel) {
-      // todo
-    }
-      
+      for(void *data = iio_buffer_first(buffer, timestamp_channel);
+          data < buffer_end; data += buffer_step) {
+      }
+    }    
   }
   
 cleanup_and_exit:  
