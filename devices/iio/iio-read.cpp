@@ -6,6 +6,7 @@
 #include <cstring>
 #include <vector>
 
+#include <boost/any.hpp>
 #include <boost/log/trivial.hpp>
 #include <iio.h>
 
@@ -21,11 +22,45 @@ using std::endl;
 using std::string;
 using std::vector;
 
+using boost::any;
+
+
+any InterpretValue(const struct iio_data_format* fmt, void *data_ptr) {
+  if (fmt->is_signed) {
+    switch (fmt->length/8) {
+      case 1: 
+        return *reinterpret_cast<int8_t*>(data_ptr);
+      case 2: 
+        return *reinterpret_cast<int16_t*>(data_ptr);
+      case 4: 
+        return *reinterpret_cast<int32_t*>(data_ptr);
+      case 8: 
+        return *reinterpret_cast<int64_t*>(data_ptr);
+      default:
+        throw std::runtime_error("Unexpected data length");
+    }
+  } else {
+    switch (fmt->length/8) {
+      case 1: 
+        return *reinterpret_cast<uint8_t*>(data_ptr);
+      case 2: 
+        return *reinterpret_cast<uint16_t*>(data_ptr);
+      case 4: 
+        return *reinterpret_cast<uint32_t*>(data_ptr);
+      case 8: 
+        return *reinterpret_cast<uint64_t*>(data_ptr);
+      default:
+        throw std::runtime_error("Unexpected data length");
+    }
+  }
+}
 
 void ReadBuffer(struct iio_device *dev, const DataSinkPtrList &data_sinks,
                 size_t buffer_size) {
   struct iio_channel *timestamp_channel = 0;
   vector<struct iio_channel*> channels;
+  vector<const struct iio_data_format*> data_formats;
+  vector<void*> data_ptrs;
   vector<DataId> data_ids;
   
   for (int i=0; i<iio_device_get_channels_count(dev); i++) {
@@ -41,6 +76,7 @@ void ReadBuffer(struct iio_device *dev, const DataSinkPtrList &data_sinks,
       timestamp_channel = channel;
     } else {
       channels.push_back(channel);
+      data_formats.push_back(iio_channel_get_data_format(channel));
       data_ids.push_back(DataId(channel_name));
     }
   }
@@ -62,13 +98,22 @@ void ReadBuffer(struct iio_device *dev, const DataSinkPtrList &data_sinks,
 
     ptrdiff_t buffer_step = iio_buffer_step(buffer);
     void *buffer_end = iio_buffer_end(buffer);
-    
-    vector<uint64_t> timestamps(buffer_size);
-    if (timestamp_channel) {
-      for(void *data = iio_buffer_first(buffer, timestamp_channel);
-          data < buffer_end; data += buffer_step) {
+    for (int i=0; i<channels.size(); i++) {
+      data_ptrs[i] = iio_buffer_first(buffer, channels[i]);
+    }
+    void *timestamp_data_ptr = iio_buffer_first(buffer, timestamp_channel);
+
+    for (int i=0; i<buffer_size; i++) {
+      int64_t timestamp = *reinterpret_cast<int64_t*>(timestamp_data_ptr);
+      for (int j=0; i<channels.size(); j++) {
+        any value = InterpretValue(data_formats[i], data_ptrs[i]);
+        data_ptrs[j] += buffer_step;
+        std::cout << boost::any_cast<double>(value) << " ";
       }
-    }    
+      timestamp_data_ptr += buffer_step;
+    }
+
+    std::cout << std::endl;
   }
   
 cleanup_and_exit:  
